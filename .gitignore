@@ -1,0 +1,7 @@
+node_modules/
+jhunter.db
+generated/
+client/dist/
+.env
+*.log
+.gstack/

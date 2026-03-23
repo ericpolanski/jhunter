@@ -1,0 +1,103 @@
+{
+  "name": "Eric Polanski",
+  "email": "ericchrispolanski@gmail.com",
+  "phone": "(224) 430-2716",
+  "location": "Gurnee, IL",
+  "education": [
+    {
+      "school": "Northwestern University",
+      "location": "Evanston, IL",
+      "degree": "Bachelor of Science, Computer Science, AI Concentration",
+      "gpa": "3.4/4.0",
+      "dates": "Sep. 2023 – Dec. 2025"
+    },
+    {
+      "school": "College of Lake County",
+      "location": "Grayslake, IL",
+      "degree": "Completed 65 credits towards Bachelors",
+      "gpa": "3.9/4.0",
+      "dates": "Aug. 2021 – May 2023"
+    }
+  ],
+  "skills": {
+    "languages": ["Python", "SQL", "C++", "Javascript/Typescript", "React", "HTML/CSS", "Java", "Bash/Shell"],
+    "tools": ["Git", "GitHub", "Docker", "Google Cloud", "Azure ML", "RESTful APIs"],
+    "frameworks": ["PyTorch", "TensorFlow/Keras", "Scikit-learn", "MLflow", "Hugging Face Transformers"]
+  },
+  "experience": [
+    {
+      "company": "AbbVie",
+      "location": "North Chicago, IL",
+      "roles": [
+        {
+          "title": "AI Engineer Intern",
+          "dates": "Sep. 2025 – Dec. 2025",
+          "bullets": [
+            "Architected a scalable RAG pipeline using Python to clean & standardize raw lab data, integrating an internal GPT-4 API to ensure high data confidence for downstream analysis",
+            "Achieved 90% data coverage with 85% accuracy in mapping proprietary lab tests to standardized codes, effectively converting unstructured data into queryable assets for research teams"
+          ]
+        },
+        {
+          "title": "Software Engineer Intern",
+          "dates": "Jun. 2024 – Aug. 2024",
+          "bullets": [
+            "Developed a robust, automated Python and R data pipeline to streamline construction of gene regulatory networks, accelerating data processing for downstream analysis",
+            "Designed relational databases to centralize access to historical genomic analyses, improving organizational transparency and inter-team collaboration"
+          ]
+        },
+        {
+          "title": "Software Engineer Intern",
+          "dates": "Jun. 2023 – Aug. 2023",
+          "bullets": [
+            "Developed and deployed an R script leveraging genomics data visualizations on server-side hosting, supporting cross-team data communication, achieving 90% reduction in data processing time and minimized entry errors"
+          ]
+        }
+      ]
+    },
+    {
+      "company": "Paper Tube Co.",
+      "location": "Lincolnshire, IL",
+      "roles": [
+        {
+          "title": "AI Engineer Intern",
+          "dates": "Jun. 2025 – Sep. 2025",
+          "bullets": [
+            "Engineered a suite of reusable OpenAI API tools to automate post-purchase communication, eliminating production bottlenecks and saving an estimated 15+ hours of manual work monthly",
+            "Collaborated with the CEO and stakeholders to gather and define business requirements, ensuring technical solutions aligned with organizational objectives"
+          ]
+        }
+      ]
+    },
+    {
+      "company": "College of Lake County",
+      "location": "Grayslake, IL",
+      "roles": [
+        {
+          "title": "Web Developer Student Worker",
+          "dates": "Aug. 2021 – May 2023",
+          "bullets": [
+            "Maintained college website and resolved 700+ technical requests. Recipient of 2022 Purpose Award"
+          ]
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "FAAM Basketball Organization | AI-Generated Newsletter",
+      "dates": "Sep. 2025 – Dec. 2025",
+      "bullets": [
+        "Engineered an AI-driven reporting tool in Python to turn raw basketball stats into a clear, readable newsletter",
+        "Leveraging predictive modeling/NLP to generate key performance insights, automating manual reporting"
+      ]
+    },
+    {
+      "name": "Northwestern University | Real-time AI Talking Teddy Bear",
+      "dates": "Jan. 2025 – Mar. 2025",
+      "bullets": [
+        "Developed a conversational AI application using OpenAI LLMs, implementing context-window management and system prompting to maintain long-term persona consistency",
+        "Integrated OpenAI's Moderation API and TextBelt API to detect inappropriate inputs and trigger real-time SMS alerts to parents, ensuring a safe user environment"
+      ]
+    }
+  ]
+}
