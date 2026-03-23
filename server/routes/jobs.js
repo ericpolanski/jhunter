@@ -6,7 +6,7 @@ const router = express.Router();
 
 // GET /api/jobs - List with filters
 router.get('/', (req, res) => {
-  const { source, minScore, location, search, sort, limit = 50, offset = 0 } = req.query;
+  const { source, minScore, location, search, sort, limit = 500, offset = 0 } = req.query;
 
   let query = `
     SELECT j.*,
@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
       a.created_at as application_created_at
     FROM jobs j
     LEFT JOIN applications a ON j.id = a.job_id
-    WHERE j.is_active = 1
+    WHERE j.is_active = 1 AND j.is_hidden = 0
   `;
   const params = [];
 
@@ -186,7 +186,7 @@ router.post('/:id/score', async (req, res) => {
 
 // PATCH /api/jobs/:id - Update
 router.patch('/:id', (req, res) => {
-  const { title, location, is_remote, salary_min, salary_max, salary_text, description, requirements, posted_date, is_active } = req.body;
+  const { title, location, is_remote, salary_min, salary_max, salary_text, description, requirements, posted_date, is_active, is_hidden } = req.body;
 
   const updates = [];
   const params = [];
@@ -201,6 +201,7 @@ router.patch('/:id', (req, res) => {
   if (requirements !== undefined) { updates.push('requirements = ?'); params.push(JSON.stringify(requirements)); }
   if (posted_date !== undefined) { updates.push('posted_date = ?'); params.push(posted_date); }
   if (is_active !== undefined) { updates.push('is_active = ?'); params.push(is_active ? 1 : 0); }
+  if (is_hidden !== undefined) { updates.push('is_hidden = ?'); params.push(is_hidden ? 1 : 0); }
 
   if (updates.length === 0) {
     return res.status(400).json({ error: 'No fields to update' });

@@ -53,6 +53,7 @@ db.exec(`
     fit_score INTEGER,
     fit_breakdown TEXT,
     is_active INTEGER DEFAULT 1,
+    is_hidden INTEGER DEFAULT 0,
     raw_html TEXT,
     scrape_run_id INTEGER,
     FOREIGN KEY (company_id) REFERENCES companies(id)
@@ -144,13 +145,46 @@ db.exec(`
   )
 `);
 
-// 9. settings table
+// 9. scrape_results table - stores ALL scraped listings per run (not deduplicated)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS scrape_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    scrape_run_id INTEGER NOT NULL,
+    source TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    url_hash TEXT NOT NULL,
+    title TEXT NOT NULL,
+    company_name TEXT NOT NULL,
+    location TEXT,
+    salary_text TEXT,
+    posted_date TEXT,
+    is_duplicate INTEGER DEFAULT 0,
+    scraped_at TEXT NOT NULL,
+    FOREIGN KEY (scrape_run_id) REFERENCES scrape_runs(id)
+  )
+`);
+
+// 10. settings table
 db.exec(`
   CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT
   )
 `);
+
+// Migration: add is_hidden column if it doesn't exist (existing databases may not have it)
+try {
+  db.exec(`ALTER TABLE jobs ADD COLUMN is_hidden INTEGER DEFAULT 0`);
+} catch (e) {
+  // Column may already exist (new database), ignore error
+}
+
+// Migration: add idx_jobs_is_hidden index if it doesn't exist
+try {
+  db.exec(`CREATE INDEX idx_jobs_is_hidden ON jobs(is_hidden)`);
+} catch (e) {
+  // Index may already exist, ignore error
+}
 
 // Create indexes for performance
 db.exec(`
@@ -160,6 +194,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_applications_job_id ON applications(job_id);
   CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
   CREATE INDEX IF NOT EXISTS idx_reminders_application_id ON reminders(application_id);
+  CREATE INDEX IF NOT EXISTS idx_scrape_results_run_id ON scrape_results(scrape_run_id);
+  CREATE INDEX IF NOT EXISTS idx_scrape_results_url_hash ON scrape_results(url_hash);
 `);
 
 export default db;

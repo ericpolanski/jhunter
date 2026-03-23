@@ -13,9 +13,9 @@ export default function JobBoard() {
     source: '',
     minScore: '',
     location: '',
-    sort: 'date_desc',
+    sort: 'score_desc',
   });
-  const [pagination, setPagination] = useState({ limit: 20, offset: 0 });
+  const [pagination, setPagination] = useState({ limit: 500, offset: 0 });
 
   useEffect(() => {
     loadJobs();
@@ -54,6 +54,16 @@ export default function JobBoard() {
       loadJobs();
     } catch (error) {
       console.error('Failed to save job:', error);
+    }
+  }
+
+  async function handleHideJob(jobId) {
+    try {
+      await jobsApi.update(jobId, { is_hidden: true });
+      setJobs(prev => prev.filter(job => job.id !== jobId));
+      setTotal(prev => prev - 1);
+    } catch (error) {
+      console.error('Failed to hide job:', error);
     }
   }
 
@@ -138,7 +148,19 @@ export default function JobBoard() {
       ) : (
         <div className="space-y-4">
           {jobs.map(job => (
-            <div key={job.id} className="card flex flex-col sm:flex-row sm:items-center gap-4">
+            <div key={job.id} className="card relative flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* Hide Button */}
+              <button
+                onClick={() => handleHideJob(job.id)}
+                className="absolute top-3 right-3 text-text-muted hover:text-text-primary transition-colors p-1 rounded hover:bg-bg-subtle"
+                aria-label="Hide job"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+
               {/* Fit Score */}
               <div className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${getFitScoreColor(job.fit_score)}`}>
                 {job.fit_score || '-'}
