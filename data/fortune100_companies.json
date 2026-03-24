@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "name": "Amazon",
+    "career_url": "https://www.amazon.com.jobs/en/search/?base_query=software+engineer&loc_query=United+States",
+    "ats_type": "custom",
+    "job_listing_pattern": "https://www.amazon.com.jobs/en/search/?base_query={role}&loc_query=United+States"
+  },
+  {
+    "rank": 2,
+    "name": "Apple",
+    "career_url": "https://jobs.apple.com/en-us/search?search=software+engineer",
+    "ats_type": "workday",
+    "job_listing_pattern": "https://jobs.apple.com/en-us/search?search={role}"
+  },
+  {
+    "rank": 3,
+    "name": "Meta",
+    "career_url": "https://www.metacareers.com/jobs?search=software+engineer",
+    "ats_type": "custom",
+    "job_listing_pattern": "https://www.metacareers.com/jobs?search={role}"
+  },
+  {
+    "rank": 4,
+    "name": "Microsoft",
+    "career_url": "https://careers.microsoft.com/us/en/search?search=software+engineer",
+    "ats_type": "workday",
+    "job_listing_pattern": "https://careers.microsoft.com/us/en/search?search={role}"
+  },
+  {
+    "rank": 5,
+    "name": "Google",
+    "career_url": "https://careers.google.com/jobs/results/?q=software+engineer",
+    "ats_type": "greenhouse",
+    "job_listing_pattern": "https://careers.google.com/jobs/results/?q={role}"
+  },
+  {
+    "rank": 6,
+    "name": "Goldman Sachs",
+    "career_url": "https://www.goldmansachs.com/careers/search?search=software+engineer",
+    "ats_type": "greenhouse",
+    "job_listing_pattern": "https://www.goldmansachs.com/careers/search?search={role}"
+  },
+  {
+    "rank": 7,
+    "name": "IBM",
+    "career_url": "https://www.ibm.com/careers/search?search=software+engineer",
+    "ats_type": "workday",
+    "job_listing_pattern": "https://www.ibm.com/careers/search?search={role}"
+  },
+  {
+    "rank": 8,
+    "name": "Intel",
+    "career_url": "https://jobs.intel.com/en-us/search?search=software+engineer",
+    "ats_type": "workday",
+    "job_listing_pattern": "https://jobs.intel.com/en-us/search?search={role}"
+  },
+  {
+    "rank": 9,
+    "name": "Walmart",
+    "career_url": "https://careers.walmart.com/search?search=software+engineer",
+    "ats_type": "workday",
+    "job_listing_pattern": "https://careers.walmart.com/search?search={role}"
+  },
+  {
+    "rank": 10,
+    "name": "Ford Motor",
+    "career_url": "https://www.ford.com/careers/search-openings?keyword=software+engineer",
+    "ats_type": "workday",
+    "job_listing_pattern": "https://www.ford.com/careers/search-openings?keyword={role}"
+  }
+]

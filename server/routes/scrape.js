@@ -30,7 +30,7 @@ router.get('/runs/:id', (req, res) => {
 // POST /api/scrape/run - Trigger a scrape
 router.post('/run', async (req, res) => {
   try {
-    const { sources = ['linkedin', 'indeed', 'glassdoor'] } = req.body;
+    const { sources = ['linkedin', 'indeed', 'glassdoor', 'fortune100'] } = req.body;
     const now = new Date().toISOString();
 
     const result = db.prepare(`

@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import db from '../db.js';
 import { scoreJob } from './fit-scorer.js';
 
@@ -8,7 +11,7 @@ const SCRAPFLY_BASE = 'https://api.scrapfly.io';
 
 const CHICAGO_LOCATIONS = ['chicago', 'evanston', 'gurnee', 'north chicago', 'lincolnshire', 'grayslake', 'waukegan', 'lake county'];
 const ROLES = ['AI Engineer', 'Software Engineer', 'Machine Learning Engineer'];
-const SOURCES = ['linkedin', 'indeed', 'glassdoor'];
+const SOURCES = ['linkedin', 'indeed', 'glassdoor', 'fortune100'];
 
 // Target companies in Chicagoland area for direct career page scraping
 const DIRECT_COMPANIES = [
@@ -612,6 +615,16 @@ export async function scrapeAll(options = {}) {
     }
   }
 
+  if (sources.includes('fortune100')) {
+    try {
+      const fortune100Jobs = await runFortune100Scrape({ roles: ROLES, resultsWanted: 100, timeout: 600 });
+      allListings.push(...fortune100Jobs);
+      console.log(`Fortune100: found ${fortune100Jobs.length} listings`);
+    } catch (e) {
+      console.error('Fortune100 scrape failed:', e.message);
+    }
+  }
+
   console.log(`Total listings before dedup: ${allListings.length}`);
 
   // Deduplicate by URL hash
@@ -695,4 +708,78 @@ export async function scrapeAll(options = {}) {
   return { jobs_found: allListings.length, jobs_new: jobsNew, jobs_scored: jobsScored };
 }
 
-export { scrapeLinkedIn, scrapeIndeed, scrapeGlassdoor, scrapeJobDetail };
+export { scrapeLinkedIn, scrapeIndeed, scrapeGlassdoor, scrapeJobDetail, runFortune100Scrape };
+
+// ─── Fortune 100 Scraper (Python subprocess) ─────────────────────────────────
+
+export async function runFortune100Scrape(options = {}) {
+  const {
+    roles = ROLES,
+    resultsWanted = 50,
+    timeout = 600
+  } = options;
+
+  return new Promise((resolve, reject) => {
+    // Spawn Python scraper - do NOT pass --companies-file since Python loads from default path
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const pythonScript = join(__dirname, 'scraper_fortune100.py');
+
+    const args = [
+      pythonScript,
+      '--roles', roles.join(','),
+      '--results-wanted', String(resultsWanted),
+      '--timeout', String(timeout)
+    ];
+
+    console.log('[fortune100] Starting Python scraper...');
+
+    const proc = spawn('python3', args, {
+      env: { ...process.env },
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    proc.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`[fortune100] Python scraper exited with code ${code}: ${stderr}`);
+        // Don't reject - return empty array instead
+        resolve([]);
+        return;
+      }
+
+      try {
+        // Parse JSON output from Python (everything after stderr)
+        const jobs = JSON.parse(stdout.trim() || '[]');
+        console.log(`[fortune100] Parsed ${jobs.length} jobs from Python scraper`);
+        resolve(jobs);
+      } catch (e) {
+        console.error(`[fortune100] Failed to parse JSON: ${e.message}`);
+        console.error(`[fortune100] stdout: ${stdout.substring(0, 500)}`);
+        resolve([]);
+      }
+    });
+
+    proc.on('error', (err) => {
+      console.error(`[fortune100] Failed to spawn Python: ${err.message}`);
+      resolve([]);
+    });
+
+    // Timeout safety
+    setTimeout(() => {
+      proc.kill();
+      console.error('[fortune100] Python scraper timed out');
+      resolve([]);
+    }, (timeout + 30) * 1000);
+  });
+}
