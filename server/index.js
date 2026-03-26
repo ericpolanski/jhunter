@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
+import net from 'net';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 
 // Load environment variables from ~/.ai-company/.env BEFORE importing modules that need them
 const envFile = readFileSync('/home/eric/.ai-company/.env', 'utf8');
@@ -52,8 +53,23 @@ app.use('/api/scrape', scrapeRouter);
 app.use('/api/settings', settingsRouter);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    // Verify database is accessible
+    db.prepare('SELECT 1').get();
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage()
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'error',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Temp debug endpoint
@@ -80,6 +96,72 @@ app.get('*', (req, res) => {
 });
 
 const PORT = 4200;
+const LOCK_FILE = join(__dirname, '..', '.jhunter-server.lock');
+
+// Port availability check
+async function checkPort(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', (err) => {
+      if (err.code === 'EADDRINUSE') resolve(true);
+      else resolve(false);
+    });
+    server.once('listening', () => {
+      server.close();
+      resolve(false);
+    });
+    server.listen(port);
+  });
+}
+
+// Check for existing instance
+function getLockOwner() {
+  if (!existsSync(LOCK_FILE)) return null;
+  try {
+    const pid = parseInt(readFileSync(LOCK_FILE, 'utf8').trim(), 10);
+    // Verify process is actually running
+    try {
+      process.kill(pid, 0);
+      return pid;
+    } catch {
+      // Stale lock file — process no longer exists
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
+// Ensure we don't start if another instance is already running
+const existingPid = getLockOwner();
+if (existingPid) {
+  console.error(`JHunter server is already running (PID ${existingPid}). Exiting.`);
+  process.exit(1);
+}
+
+// Write our PID to lock file
+writeFileSync(LOCK_FILE, String(process.pid));
+
+// Cleanup lock file on exit
+process.on('exit', () => {
+  try { unlinkSync(LOCK_FILE); } catch {}
+});
+process.on('SIGINT', () => {
+  try { unlinkSync(LOCK_FILE); } catch {}
+  process.exit(0);
+});
+process.on('SIGTERM', () => {
+  try { unlinkSync(LOCK_FILE); } catch {}
+  process.exit(0);
+});
+
+// Port guard - prevent EADDRINUSE by checking port availability
+const isPortInUse = await checkPort(PORT);
+if (isPortInUse) {
+  console.error(`Port ${PORT} is already in use. Another instance may be running.`);
+  process.exit(1);
+}
+
 app.listen(PORT, () => {
   console.log(`JHunter Server running on port ${PORT}`);
 });

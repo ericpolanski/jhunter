@@ -6,7 +6,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "start:prod": "pm2 start ecosystem.config.cjs"
+  },
+  "devDependencies": {
+    "pm2": "^5.4.0"
   },
   "dependencies": {
     "better-sqlite3": "^11.6.0",
