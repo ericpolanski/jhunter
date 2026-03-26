@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 
 // Load environment variables from ~/.ai-company/.env BEFORE importing modules that need them
 const envFile = readFileSync('/home/eric/.ai-company/.env', 'utf8');
@@ -80,6 +80,49 @@ app.get('*', (req, res) => {
 });
 
 const PORT = 4200;
+const LOCK_FILE = join(__dirname, '..', '.jhunter-server.lock');
+
+// Check for existing instance
+function getLockOwner() {
+  if (!existsSync(LOCK_FILE)) return null;
+  try {
+    const pid = parseInt(readFileSync(LOCK_FILE, 'utf8').trim(), 10);
+    // Verify process is actually running
+    try {
+      process.kill(pid, 0);
+      return pid;
+    } catch {
+      // Stale lock file — process no longer exists
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
+// Ensure we don't start if another instance is already running
+const existingPid = getLockOwner();
+if (existingPid) {
+  console.error(`JHunter server is already running (PID ${existingPid}). Exiting.`);
+  process.exit(1);
+}
+
+// Write our PID to lock file
+writeFileSync(LOCK_FILE, String(process.pid));
+
+// Cleanup lock file on exit
+process.on('exit', () => {
+  try { unlinkSync(LOCK_FILE); } catch {}
+});
+process.on('SIGINT', () => {
+  try { unlinkSync(LOCK_FILE); } catch {}
+  process.exit(0);
+});
+process.on('SIGTERM', () => {
+  try { unlinkSync(LOCK_FILE); } catch {}
+  process.exit(0);
+});
+
 app.listen(PORT, () => {
   console.log(`JHunter Server running on port ${PORT}`);
 });
